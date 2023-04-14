@@ -3,21 +3,27 @@ pragma solidity 0.8.9;
 
 import "forge-std/Test.sol";
 import "../src/Claims.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract CounterTest is Test {
+contract ClaimsTest is DSTest {
+    Claims claims;
+    IERC20 feeToken;
 
     function setUp() public {
-        // Claims = new Claims();
-        // Claims.setNumber(0);
+        feeToken = IERC20(address(this)); // Using the test contract's address as a dummy fee token for testing purposes
+        claims = new Claims(address(feeToken), address(this));
     }
 
-    function testIncrement() public {
-        // counter.increment();
-        // assertEq(counter.number(), 1);
+    function testName() public {
+        assertEq(claims.name(), "Claims");
     }
 
-    function testSetNumber(uint256 x) public {
-        // counter.setNumber(x);
-        // assertEq(counter.number(), x);
+    function testSymbol() public {
+        assertEq(claims.symbol(), "CLAIMS_USD_NFT");
+    }
+
+    function testGetTransferFee() public {
+        uint8 expectedTransferFee = 125;
+        assertEq(claims.getTransferFee(), expectedTransferFee);
     }
 }
