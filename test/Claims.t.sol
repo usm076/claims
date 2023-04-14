@@ -22,6 +22,11 @@ contract ClaimsTest is DSTest {
         assertEq(claims.symbol(), "CLAIMS_USD_NFT");
     }
 
+    function testTotaylSupply() public {
+        uint8 expectedTotalSupply = 0;
+        assertEq(claims.totalSupply(), expectedTotalSupply);
+    }
+
     function testGetTransferFee() public {
         uint8 expectedTransferFee = 125;
         assertEq(claims.getTransferFee(), expectedTransferFee);

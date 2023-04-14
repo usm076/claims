@@ -56,26 +56,32 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
         );
     }
 
-    function updateTokenURI(uint256 tokenId, string memory newIpfsUri) public onlyOwner {
-    require(_exists(tokenId), "ERC721: Token ID does not exist");
-    _setTokenURI(tokenId, newIpfsUri);
-}
+    function updateTokenURI(
+        uint256 tokenId,
+        string memory newIpfsUri
+    ) public onlyOwner {
+        require(_exists(tokenId), "ERC721: Token ID does not exist");
+        _setTokenURI(tokenId, newIpfsUri);
+    }
 
-// Overrides transferFrom() to add a transfer fee
+    // Overrides transferFrom() to add a transfer fee
     function transferFrom(
         address from,
         address to,
         uint256 tokenId,
         address feePayer
     ) public virtual {
-        require(_approvedFeePayers[tokenId][feePayer], "ERC721: Fee payer has not approved this token ID");
+        require(
+            _approvedFeePayers[tokenId][feePayer],
+            "ERC721: Fee payer has not approved this token ID"
+        );
 
         uint256 faceValue = tokenIdToNft[tokenId].faceValue;
         uint256 fee = (faceValue * _transferFee) / 10000; // Assuming the transfer fee is in basis points (1% = 100)
-        fee = fee * 10**18; // Assuming the ERC20 token has 18 decimal places
+        fee = fee * 10 ** 18; // Assuming the ERC20 token has 18 decimal places
         uint256 referrerCommission = (fee * 20) / 100; // Calculate 20% of the fee as the commission for the referrer
         uint256 remainingFee = fee - referrerCommission; // Calculate the remaining fee for the feeRecipient
-        
+
         // ERC20 approval must be granted to the deployed ERC721 contract address
         // Transfer the commission to the referrer
         address referrer = tokenIdToNft[tokenId].referrer;
@@ -104,7 +110,9 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
         _approvedFeePayers[tokenId][_msgSender()] = false;
     }
 
-    function updateFeeTokenAddress(address newFeeTokenAddress) public onlyOwner {
+    function updateFeeTokenAddress(
+        address newFeeTokenAddress
+    ) public onlyOwner {
         _feeToken = IERC20(newFeeTokenAddress);
     }
 
@@ -113,7 +121,10 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
     }
 
     function updateTransferFee(uint8 newTransferFee) public onlyOwner {
-        require(newTransferFee <= 125, "ERC721: Transfer fee cannot be more than 1.25%");
+        require(
+            newTransferFee <= 125,
+            "ERC721: Transfer fee cannot be more than 1.25%"
+        );
         _transferFee = newTransferFee;
     }
 
@@ -121,28 +132,30 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
         return _transferFee;
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId, uint256 batchSize)
-        internal
-        override(ERC721, ERC721Enumerable)
-    {
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 batchSize
+    ) internal override(ERC721, ERC721Enumerable) {
         super._beforeTokenTransfer(from, to, tokenId, batchSize);
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        override(ERC721, ERC721Enumerable)
-        returns (bool)
-    {
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view override(ERC721, ERC721Enumerable) returns (bool) {
         return super.supportsInterface(interfaceId);
     }
 
-    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+    function _burn(
+        uint256 tokenId
+    ) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view override(ERC721, ERC721URIStorage) returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override(ERC721, ERC721URIStorage) returns (string memory) {
         return super.tokenURI(tokenId);
     }
-
 }
