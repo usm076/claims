@@ -20,10 +20,12 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
     uint8 private _transferFee; // Transfer fee percentage as a fixed-point number (e.g., 1.25% = 125)
     address private _feeRecipient;
 
+    /*FIXME:
     error TokenId_Does_Not_Exist();
     error Fee_Payer_Has_Not_Approved_This_TokenId();
     error Must_Have_Approval_For_Referrer_Commission_Transfer();
     error Transfer_Fee_Limit_Exceeded();
+    */
 
     struct nft {
         address originalOwner;
