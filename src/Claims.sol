@@ -8,15 +8,22 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
     using Strings for uint256;
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
+    using SafeERC20 for IERC20;
 
     IERC20 private _feeToken;
     uint8 private _transferFee; // Transfer fee percentage as a fixed-point number (e.g., 1.25% = 125)
     address private _feeRecipient;
+
+    error TokenId_Does_Not_Exist();
+    error Fee_Payer_Has_Not_Approved_This_TokenId();
+    error Must_Have_Approval_For_Referrer_Commission_Transfer();
+    error Transfer_Fee_Limit_Exceeded();
 
     struct nft {
         address originalOwner;
@@ -61,6 +68,7 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
         string memory newIpfsUri
     ) public onlyOwner {
         require(_exists(tokenId), "ERC721: Token ID does not exist");
+        // if(!_exists(tokenId)) revert TokenId_Does_Not_Exist(); //FIXME:
         _setTokenURI(tokenId, newIpfsUri);
     }
 
@@ -75,6 +83,7 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
             _approvedFeePayers[tokenId][feePayer],
             "ERC721: Fee payer has not approved this token ID"
         );
+        // if(!_approvedFeePayers[tokenId][feePayer]) revert Fee_Payer_Has_Not_Approved_This_TokenId(); //FIXME:
 
         uint256 faceValue = tokenIdToNft[tokenId].faceValue;
         uint256 fee = (faceValue * _transferFee) / 10000; // Assuming the transfer fee is in basis points (1% = 100)
@@ -89,12 +98,14 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
             _feeToken.transferFrom(feePayer, referrer, referrerCommission),
             "ERC721: Must have approval for referrer commission transfer"
         );
+        // _feeToken.safeTransferFrom(feePayer, referrer, referrerCommission); //FIXME:
 
         // Transfer the remaining fee to the fee recipient
         require(
             _feeToken.transferFrom(feePayer, _feeRecipient, remainingFee),
             "ERC721: Must have approval for fee transfer"
         );
+        // _feeToken.safeTransferFrom(feePayer, _feeRecipient, remainingFee); //FIXME:
 
         // Call the original transferFrom() function from the ERC721 contract
         super.transferFrom(from, to, tokenId);
@@ -102,11 +113,13 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
 
     function approveFeeForId(uint256 tokenId) public {
         require(_exists(tokenId), "ERC721: Token ID does not exist");
+        // if(!_exists(tokenId)) revert TokenId_Does_Not_Exist(); //FIXME:
         _approvedFeePayers[tokenId][_msgSender()] = true;
     }
 
     function revokeFeeForId(uint256 tokenId) public {
         require(_exists(tokenId), "ERC721: Token ID does not exist");
+        // if(!_exists(tokenId)) revert TokenId_Does_Not_Exist(); //FIXME:
         _approvedFeePayers[tokenId][_msgSender()] = false;
     }
 
@@ -125,6 +138,7 @@ contract Claims is ERC721URIStorage, ERC721Burnable, ERC721Enumerable, Ownable {
             newTransferFee <= 125,
             "ERC721: Transfer fee cannot be more than 1.25%"
         );
+        // if(newTransferFee > 125) revert Transfer_Fee_Limit_Exceeded(); //FIXME:
         _transferFee = newTransferFee;
     }
 
