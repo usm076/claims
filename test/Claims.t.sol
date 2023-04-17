@@ -77,7 +77,8 @@ contract ClaimsTest is Test {
         assertEq(claims.tokenURI(1), "updated token URI");
     }
 
-    function testCustomTrasferFrom() public {
+    function testCustomTrasferFrom() public view {
+        console.log("Need more info to write a test for POC I have provided with a general idea how the attack might happen.");
         // Need more info to write a test for POC I have provided with a general idea how the attack might happen.
     }
 }
