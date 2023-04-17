@@ -1,3 +1,7 @@
+# Disclaimer
+
+A smart contract security review can never verify the complete absence of vulnerabilities. This is a time, resource and expertise bound effort where I try to find as many vulnerabilities as possible. I can not guarantee 100% security after the review or even if the review will find any problems with your smart contracts.
+
 # Claims Contract review 
 
 **Scope: `Claims.sol`**
